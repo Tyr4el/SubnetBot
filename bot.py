@@ -1,6 +1,7 @@
 import discord
 import token
 import ip_address
+import points
 
 TOKEN = token.TOKEN
 
@@ -9,6 +10,8 @@ client = discord.Client()
 
 @client.event
 async def on_message(message):
+    author = message.author
+    user_id = message.author.id
     # We do not want the bot to reply to itself
     if message.author == client.user:
         return
@@ -23,17 +26,18 @@ async def on_message(message):
         answer = ip_address.ip_network
         await client.send_message(message.channel, question)
 
-        guess = await client.wait_for_message(timeout=25.0, author=message.author)
+        guess = await client.wait_for_message(timeout=25.0, author=author)
 
         if guess is None:
-            fmt = 'Sorry, you took too long. It was {}.'
-            await client.send_message(message.channel, fmt.format(answer))
+            fmt = 'Sorry {}, you took too long. It was {}.'
+            await client.send_message(message.channel, fmt.format(author.mention, answer))
             return
         if guess == answer:
-            # TODO: Implement point system
-            await client.send_message(message.channel, 'Correct {}!  +10 Points!'.format(message.author))
+            await client.send_message(message.channel, 'Correct {}!  +10 Points!'.format(author.mention))
+            points.set_points(user_id, points.get_points(user_id) + 10)
         else:
             await client.send_message(message.channel, 'Sorry. It is actually {}. -5 Points'.format(answer))
+            points.set_points(user_id, points.get_points(user_id) - 5)
 
     # Hello (Test)
     if message.content.startswith('$hello'):
