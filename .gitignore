@@ -1,0 +1,7 @@
+# PyCharm Environment
+venv/
+.idea/
+
+# Files
+token.py
+.gitattributes
