@@ -7,6 +7,7 @@ import points
 TOKEN = constants.TOKEN
 
 client = discord.Client()
+points.load()
 
 
 @client.event
@@ -120,13 +121,34 @@ async def on_message(message):
             points.set_points(user_id, points.get_points(user_id) - 5)
             points.save()
 
+    # Get user's points from the json file
+    # $points
     if message.content.startswith('$points'):
-       points_embed = discord.Embed(
-            title='{}\'s Points'.format(author.mention),
+        points_embed = discord.Embed(
+            title='{}\'s Points'.format(author),
             description='You have **{}** points'.format(points.get_points(user_id)),
-            color=0xFFFF00
-       )
-       await client.send_message(message.channel, embed=points_embed)
+            color=0xFFFF00  # Yellow
+        )
+        await client.send_message(message.channel, embed=points_embed)
+
+    # Display the leaderboard
+    if message.content.startswith('$leaderboard'):
+        leaderboard_embed = discord.Embed(
+            title="Subnetting Leaderboard",
+            description='The Top 10 Subnetting Masters!',
+            color=0xFFFF00,  # Yellow
+            fields=[{
+                "name": points.get_leaderboard()[0],
+                "points": points.get_leaderboard()[0]
+            },
+                {
+                    "name": points.get_leaderboard()[1],
+                    "points": points.get_leaderboard()[1]
+                }
+            ]
+        )
+
+        await client.send_message(message.channel, embed=leaderboard_embed)
 
     # Hello (Test)
     if message.content.startswith('$hello'):
@@ -140,5 +162,6 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+
 
 client.run(TOKEN)
