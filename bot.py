@@ -7,7 +7,7 @@ import points
 TOKEN = constants.TOKEN
 
 client = discord.Client()
-points.load()
+points.load_points()
 
 
 @client.event
@@ -28,7 +28,8 @@ async def on_message(message):
     # $subnet-network
     if message.content.startswith('$subnet-network'):
         ip = ip_address.IPAddress()
-        question = 'What is the Network address of **{}**?'.format(ip.formatted_ip_address)
+        question = "What is the Network address of **{}**?\n\n Format your answer as " \
+                   "xxx.xxx.xxx.xxx/xx".format(ip.formatted_ip_address)
         answer = ip.ip_network
         embed_question = discord.Embed(
             title="Subnetting: Finding Network Addresses",
@@ -133,27 +134,30 @@ async def on_message(message):
 
     # Display the leaderboard
     if message.content.startswith('$leaderboard'):
+        fields = []
         leaderboard_embed = discord.Embed(
             title="Subnetting Leaderboard",
             description='The Top 10 Subnetting Masters!',
             color=0xFFFF00,  # Yellow
-            fields=[{
-                "name": points.get_leaderboard()[0],
-                "points": points.get_leaderboard()[0]
-            },
-                {
-                    "name": points.get_leaderboard()[1],
-                    "points": points.get_leaderboard()[1]
-                }
-            ]
         )
+
+        # Enumerate through get_leaderboard()
+        # Set position to 1 + index
+        # Set name to be a mention when it formats in Discord
+        # points = value (couldn't use the same name)
+        for index, item in enumerate(points.get_leaderboard()):
+            position = index + 1
+            name = '<@' + str(item[0]) + '>'
+            value = item[1]
+            leaderboard_embed.add_field(name='Position', value='**{0}.**'.format(position), inline=True)
+            leaderboard_embed.add_field(name='Name', value='{0}'.format(name), inline=True)
+            leaderboard_embed.add_field(name='Points', value='{0}'.format(value), inline=True)
 
         await client.send_message(message.channel, embed=leaderboard_embed)
 
     # Hello (Test)
     if message.content.startswith('$hello'):
-        msg = 'Hello {0.author.mention}'.format(message)
-        await client.send_message(message.channel, 'Points {}'.format(points.get_leaderboard()))
+        await client.send_message(message.channel, 'Hello {}'.format(author.mention))
 
 
 @client.event
