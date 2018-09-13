@@ -1,6 +1,7 @@
 import discord
 import constants
 import ip_address
+import ipaddress
 import points
 
 TOKEN = constants.TOKEN
@@ -19,18 +20,15 @@ async def on_message(message):
     # Shutdown
     if message.content.startswith('$shutdown'):
         await client.send_message(message.channel, ':wave: Bye :wave: bye!')
+        points.save()
         await client.close()
-
-    if message.content.startswith('$restart'):
-        await client.send_message(message.channel, 'Okay brb!')
-        await client.close()
-        await client.connect()
 
     # Guessing game for guessing the network address of an IP
     # $subnet-network
     if message.content.startswith('$subnet-network'):
-        question = 'What is the Network address of **{}**?'.format(ip_address.formatted_ip_address)
-        answer = ip_address.ip_network
+        ip = ip_address.IPAddress()
+        question = 'What is the Network address of **{}**?'.format(ip.formatted_ip_address)
+        answer = ip.ip_network
         embed_question = discord.Embed(
             title="Subnetting: Finding Network Addresses",
             description=question,
@@ -64,13 +62,15 @@ async def on_message(message):
             await client.send_message(message.channel, embed=embed_timeout)
             return
         # Correct answer given
-        if guess == answer:
+        if ipaddress.IPv4Network(guess.content) == answer:
             await client.send_message(message.channel, embed=embed_correct)
             points.set_points(user_id, points.get_points(user_id) + 10)
+            points.save()
         # Wrong answer given
         else:
             await client.send_message(message.channel, embed=embed_wrong)
             points.set_points(user_id, points.get_points(user_id) - 5)
+            points.save()
 
     # Guessing game for guessing the broadcast address of an IP
     # $subnet-broadcast
@@ -110,18 +110,28 @@ async def on_message(message):
             await client.send_message(message.channel, embed=embed_timeout)
             return
         # Correct answer given
-        if guess == answer:
+        if guess.content == answer:
             await client.send_message(message.channel, embed=embed_correct)
             points.set_points(user_id, points.get_points(user_id) + 10)
+            points.save()
         # Wrong answer given
         else:
             await client.send_message(message.channel, embed=embed_wrong)
             points.set_points(user_id, points.get_points(user_id) - 5)
+            points.save()
+
+    if message.content.startswith('$points'):
+       points_embed = discord.Embed(
+            title='{}\'s Points'.format(author.mention),
+            description='You have **{}** points'.format(points.get_points(user_id)),
+            color=0xFFFF00
+       )
+       await client.send_message(message.channel, embed=points_embed)
 
     # Hello (Test)
     if message.content.startswith('$hello'):
         msg = 'Hello {0.author.mention}'.format(message)
-        await client.send_message(message.channel, msg)
+        await client.send_message(message.channel, 'Points {}'.format(points.get_leaderboard()))
 
 
 @client.event
