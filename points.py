@@ -1,12 +1,17 @@
 import json
+import os.path
 
 data = {}
 
 
-def load():
-    with open('points.json', 'r') as file:
-        json.load(file)
-    print('Opened points.json file')
+def load_points():
+    global data
+    if os.path.exists('points.json'):
+        with open('points.json', 'r') as file:
+            data = json.load(file)
+        print('Opened points.json file')
+    else:
+        data = {}
 
 
 def save():
@@ -24,10 +29,10 @@ def get_points(user_id):
 
 def set_points(user_id, points):
     data[user_id] = points
-    if data[user_id] == 0:
+    if data[user_id] <= 0:
         data[user_id] = 0
 
 
 def get_leaderboard():
-    for key, value in data.items():
-        return key, value
+    sorted_data = [(k, v) for k, v in data.items()]
+    return sorted_data[:10]
