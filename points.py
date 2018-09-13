@@ -24,3 +24,10 @@ def get_points(user_id):
 
 def set_points(user_id, points):
     data[user_id] = points
+    if data[user_id] == 0:
+        data[user_id] = 0
+
+
+def get_leaderboard():
+    for key, value in data.items():
+        return key, value
