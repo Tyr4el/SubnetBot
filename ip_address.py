@@ -9,8 +9,8 @@ class IPAddress:
         self.stop = int(ipaddress.IPv4Address('223.255.254.254'))
         self.random_ip = random.randrange(self.start, self.stop)
 
-        # Subnet mask between 1 and 32 (31?)
-        self.mask = random.randint(0, 32)
+        # Subnet mask between 1 and 31
+        self.mask = random.randint(0, 31)
 
         # Get an IPv4Address object from the random integer generated on line 4
         self.ip = ipaddress.IPv4Address(self.random_ip)
