@@ -3,6 +3,7 @@ import constants
 import ip_address
 import ipaddress
 import points
+from ipaddress import AddressValueError
 
 TOKEN = constants.TOKEN
 
@@ -57,7 +58,7 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed_question)
 
-        guess = await client.wait_for_message(timeout=30.0, author=author)
+        guess = await client.wait_for_message(timeout=30.0)
 
         # If the user enters nothing
         if guess is None:
@@ -77,8 +78,9 @@ async def on_message(message):
     # Guessing game for guessing the broadcast address of an IP
     # $subnet-broadcast
     if message.content.startswith('$subnet-broadcast'):
-        question = 'What is the Broadcast address of **{}**?'.format(ip_address.formatted_ip_address)
-        answer = ip_address.ip_network.broadcast_address
+        ip = ip_address.IPAddress()
+        question = 'What is the Broadcast address of **{}**?'.format(ip.formatted_ip_address)
+        answer = ip.ip_network.broadcast_address
         embed_question = discord.Embed(
             title="Subnetting: Finding Broadcast Addresses",
             description=question,
@@ -105,7 +107,7 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed_question)
 
-        guess = await client.wait_for_message(timeout=30.0, author=author)
+        guess = await client.wait_for_message(timeout=30.0)
 
         # If the user enters nothing
         if guess is None:
@@ -113,6 +115,60 @@ async def on_message(message):
             return
         # Correct answer given
         if guess.content == answer:
+            await client.send_message(message.channel, embed=embed_correct)
+            points.set_points(user_id, points.get_points(user_id) + 10)
+            points.save()
+        # Wrong answer given
+        else:
+            await client.send_message(message.channel, embed=embed_wrong)
+            points.set_points(user_id, points.get_points(user_id) - 5)
+            points.save()
+
+    # Guessing game for guessing the subnets of an IP
+    # $subnet-subnet
+    if message.content.startswith('$subnet-subnet'):
+        ip = ip_address.IPAddress()
+        question = 'What are the subnets of **{}**?\n\n Format your answer as \
+                   xxx.xxx.xxx.xxx/xx and separate subnets with a space'.format(ip.formatted_ip_address)
+        answer = []
+        for subnet in ip.subnets:
+            answer.append(subnet)
+            print(subnet)
+
+        embed_question = discord.Embed(
+            title="Subnetting: Finding Subnets",
+            description=question,
+            color=0x00FF00  # Green
+        )
+
+        embed_timeout = discord.Embed(
+            title="Subnetting: Finding Subnets",
+            description='Sorry {}, you took too long. It was **{}**'.format(author.mention, answer[0:]),
+            color=0xFF0000  # Red
+        )
+
+        embed_correct = discord.Embed(
+            title="Subnetting: Finding Subnets",
+            description='Correct {}!  +10 Points!'.format(author.mention),
+            color=0x00FF00  # Green
+        )
+
+        embed_wrong = discord.Embed(
+            title="Subnetting: Finding Subnets",
+            description='Sorry {}. It is actually **{}**. -5 Points'.format(author.mention, answer),
+            color=0xFF0000  # Red
+        )
+
+        await client.send_message(message.channel, embed=embed_question)
+
+        guess = await client.wait_for_message(timeout=30.0)
+
+        # If the user enters nothing
+        if guess is None:
+            await client.send_message(message.channel, embed=embed_timeout)
+            return
+        # Correct answer given
+        if ipaddress.IPv4Network(guess.content) == answer:
             await client.send_message(message.channel, embed=embed_correct)
             points.set_points(user_id, points.get_points(user_id) + 10)
             points.save()
@@ -134,7 +190,6 @@ async def on_message(message):
 
     # Display the leaderboard
     if message.content.startswith('$leaderboard'):
-        fields = []
         leaderboard_embed = discord.Embed(
             title="Subnetting Leaderboard",
             description='The Top 10 Subnetting Masters!',
