@@ -58,14 +58,14 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed_question)
 
-        guess = await client.wait_for_message(timeout=30.0)
+        guess = await client.wait_for_message(channel=message.channel, timeout=30.0)
 
         # If the user enters nothing
         if guess is None:
             await client.send_message(message.channel, embed=embed_timeout)
             return
         # Correct answer given
-        if ipaddress.IPv4Network(guess.content) == answer:
+        if ipaddress.IPv4Network(guess.content, strict=False) == answer:
             await client.send_message(message.channel, embed=embed_correct)
             points.set_points(user_id, points.get_points(user_id) + 10)
             points.save()
@@ -161,14 +161,14 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed_question)
 
-        guess = await client.wait_for_message(timeout=60.0)
+        guess = await client.wait_for_message(channel=message.channel, timeout=60.0)
 
         # If the user enters nothing
         if guess is None:
             await client.send_message(message.channel, embed=embed_timeout)
             return
         # Correct answer given
-        if ipaddress.IPv4Network(guess.content) == answer:
+        if list(ipaddress.IPv4Network(guess.content).exploded) == answer:
             await client.send_message(message.channel, embed=embed_correct)
             points.set_points(user_id, points.get_points(user_id) + 10)
             points.save()
