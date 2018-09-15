@@ -161,7 +161,7 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed_question)
 
-        guess = await client.wait_for_message(timeout=30.0)
+        guess = await client.wait_for_message(timeout=60.0)
 
         # If the user enters nothing
         if guess is None:
