@@ -3,12 +3,14 @@ import constants
 import ip_address
 import ipaddress
 import points
+import random
 from ipaddress import AddressValueError
 
 TOKEN = constants.TOKEN
 
 client = discord.Client()
 points.load_points()
+client.change_status(game='Use $help')
 
 
 @client.event
@@ -155,6 +157,8 @@ async def on_message(message):
             answer.append(subnet)
             print(subnet)
 
+        print(answer)
+
         embed_question = discord.Embed(
             title="Subnetting: Finding Subnets",
             description=question,
@@ -182,13 +186,76 @@ async def on_message(message):
         await client.send_message(message.channel, embed=embed_question)
 
         guess = await client.wait_for_message(channel=message.channel, timeout=60.0)
+        # Split the guess into an array separated by a comma
+        guess_split = set(guess.content.split(','))
+        print(guess_split)  # Debugging
 
         # If the user enters nothing
         if guess is None:
             await client.send_message(message.channel, embed=embed_timeout)
             return
         # Correct answer given
-        if list(ipaddress.IPv4Network(guess.content).exploded) == answer:
+        if guess_split.issubset(answer):
+            await client.send_message(message.channel, embed=embed_correct)
+            points.set_points(user_id, points.get_points(user_id) + 10)
+            points.save()
+        # Wrong answer given
+        else:
+            await client.send_message(message.channel, embed=embed_wrong)
+            points.set_points(user_id, points.get_points(user_id) - 5)
+            points.save()
+
+    if message.content.startswith("$power"):
+        power = random.randint(1, 16)
+        question = "What is the answer: **2^{}**".format(power)
+        answer = 2 ** power
+
+        embed_question = discord.Embed(
+            title="Powers: Base 2",
+            description=question,
+            color=0x00FF00  # Green
+        )
+
+        embed_timeout = discord.Embed(
+            title="Powers: Base 2",
+            description='Sorry {}, you took too long. It was **{}**'.format(author.mention, answer),
+            color=0xFF0000  # Red
+        )
+
+        embed_correct = discord.Embed(
+            title="Powers: Base 2",
+            description='Correct {}!  +10 Points!'.format(author.mention),
+            color=0x00FF00  # Green
+        )
+
+        embed_wrong = discord.Embed(
+            title="Powers: Base 2",
+            description='Sorry {}. It is actually **{}**. -5 Points'.format(author.mention, answer),
+            color=0xFF0000  # Red
+        )
+
+        await client.send_message(message.channel, embed=embed_question)
+
+        current_channel = message.channel
+
+        def is_int(msg):
+            try:
+                int(msg)
+                return True
+            except ValueError:
+                return False
+
+        def check(msg):
+            return msg.channel == current_channel and is_int(msg.content)
+
+        guess = await client.wait_for_message(channel=message.channel, timeout=10.0, check=check)
+
+        # If the user enters nothing
+        if guess is None:
+            await client.send_message(message.channel, embed=embed_timeout)
+            return
+        # Correct answer given
+        if guess.content == str(answer):
             await client.send_message(message.channel, embed=embed_correct)
             points.set_points(user_id, points.get_points(user_id) + 10)
             points.save()
@@ -233,6 +300,22 @@ async def on_message(message):
     # Hello (Test)
     if message.content.startswith('$hello'):
         await client.send_message(message.channel, 'Hello {}'.format(author.mention))
+
+    if message.content.startswith('$help'):
+        await client.send_message(author,
+                                  "**Developed By:** Tyr4el#9451\n\n"
+                                  "**$points:** Shows the user's current points\n"
+                                  "**$leaderboard:** Displays the top 10 user's and their points\n"
+                                  "**$subnet-network:** Starts a game for anyone in the channel to guess the network "
+                                  "address of a given IP address and mask in the format xxx.xxx.xxx.xxx/yy\n"
+                                  "**$subnet-broadcast:** Starts a game for anyone in the channel to guess the "
+                                  "broadcast address of a given IP address and mask\n"
+                                  "**$subnet-subnet:** Starts a game for anyone in the channel to guess the subnets "
+                                  "of a given IP address and mask with answers delimited by a comma in the format "
+                                  "xxx.xxx.xxx.xxx/yy\n"
+                                  "**$power:** Starts a game for anyone in the channel to guess the answer of a "
+                                  "random power with base 2 (i.e. 2^10)\n"
+                                  "**$help:** DMs this help message to the user")
 
 
 @client.event
