@@ -57,8 +57,18 @@ async def on_message(message):
         )
 
         await client.send_message(message.channel, embed=embed_question)
+        current_channel = message.channel
 
-        guess = await client.wait_for_message(channel=message.channel, timeout=30.0)
+        def check(msg):
+            if msg.channel != current_channel:
+                return False
+            try:
+                ipaddress.IPv4Network(msg.content, strict=False)
+                return True
+            except ipaddress.AddressValueError:
+                return False
+
+        guess = await client.wait_for_message(channel=message.channel, timeout=30.0, check=check)
 
         # If the user enters nothing
         if guess is None:
@@ -106,8 +116,18 @@ async def on_message(message):
         )
 
         await client.send_message(message.channel, embed=embed_question)
+        current_channel = message.channel
 
-        guess = await client.wait_for_message(timeout=30.0)
+        def check(msg):
+            if msg.channel != current_channel:
+                return False
+            try:
+                ipaddress.IPv4Network(msg.content, strict=False)
+                return True
+            except ipaddress.AddressValueError:
+                return False
+
+        guess = await client.wait_for_message(timeout=30.0, check=check)
 
         # If the user enters nothing
         if guess is None:
