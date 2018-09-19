@@ -10,7 +10,6 @@ TOKEN = constants.TOKEN
 
 client = discord.Client()
 points.load_points()
-client.change_status(game='Use $help')
 
 
 @client.event
@@ -148,62 +147,62 @@ async def on_message(message):
 
     # Guessing game for guessing the subnets of an IP
     # $subnet-subnet
-    if message.content.startswith('$subnet-subnet'):
-        ip = ip_address.IPAddress()
-        question = 'What are the subnets of **{}**?\n\n Format your answer as \
-                   xxx.xxx.xxx.xxx/xx and separate subnets with a space'.format(ip.formatted_ip_address)
-        answer = []
-        for subnet in ip.subnets:
-            answer.append(subnet)
-            print(subnet)
-
-        print(answer)
-
-        embed_question = discord.Embed(
-            title="Subnetting: Finding Subnets",
-            description=question,
-            color=0x00FF00  # Green
-        )
-
-        embed_timeout = discord.Embed(
-            title="Subnetting: Finding Subnets",
-            description='Sorry {}, you took too long. It was **{}**'.format(author.mention, answer[0:]),
-            color=0xFF0000  # Red
-        )
-
-        embed_correct = discord.Embed(
-            title="Subnetting: Finding Subnets",
-            description='Correct {}!  +10 Points!'.format(author.mention),
-            color=0x00FF00  # Green
-        )
-
-        embed_wrong = discord.Embed(
-            title="Subnetting: Finding Subnets",
-            description='Sorry {}. It is actually **{}**. -5 Points'.format(author.mention, answer),
-            color=0xFF0000  # Red
-        )
-
-        await client.send_message(message.channel, embed=embed_question)
-
-        guess = await client.wait_for_message(channel=message.channel, timeout=60.0)
-        # Split the guess into an array separated by a comma
-        guess_split = set(guess.content.split(','))
-        print(guess_split)  # Debugging
-
-        # If the user enters nothing
-        if guess is None:
-            await client.send_message(message.channel, embed=embed_timeout)
-            return
-        # Correct answer given
-        if guess_split.issubset(answer):
-            await client.send_message(message.channel, embed=embed_correct)
-            points.set_points(user_id, points.get_points(user_id) + 10)
-            points.save()
-        # Wrong answer given
-        else:
-            await client.send_message(message.channel, embed=embed_wrong)
-            points.set_points(user_id, points.get_points(user_id) - 5)
-            points.save()
+    # if message.content.startswith('$subnet-subnet'):
+    #     ip = ip_address.IPAddress()
+    #     question = 'What are the subnets of **{}**?\n\n Format your answer as \
+    #                xxx.xxx.xxx.xxx/xx and separate subnets with a space'.format(ip.formatted_ip_address)
+    #     answer = []
+    #     for subnet in ip.subnets:
+    #         answer.append(subnet)
+    #         print(subnet)
+    #
+    #     print(answer)
+    #
+    #     embed_question = discord.Embed(
+    #         title="Subnetting: Finding Subnets",
+    #         description=question,
+    #         color=0x00FF00  # Green
+    #     )
+    #
+    #     embed_timeout = discord.Embed(
+    #         title="Subnetting: Finding Subnets",
+    #         description='Sorry {}, you took too long. It was **{}**'.format(author.mention, answer[0:]),
+    #         color=0xFF0000  # Red
+    #     )
+    #
+    #     embed_correct = discord.Embed(
+    #         title="Subnetting: Finding Subnets",
+    #         description='Correct {}!  +10 Points!'.format(author.mention),
+    #         color=0x00FF00  # Green
+    #     )
+    #
+    #     embed_wrong = discord.Embed(
+    #         title="Subnetting: Finding Subnets",
+    #         description='Sorry {}. It is actually **{}**. -5 Points'.format(author.mention, answer),
+    #         color=0xFF0000  # Red
+    #     )
+    #
+    #     await client.send_message(message.channel, embed=embed_question)
+    #
+    #     guess = await client.wait_for_message(channel=message.channel, timeout=60.0)
+    #     # Split the guess into an array separated by a comma
+    #     guess_split = set(guess.content.split(','))
+    #     print(guess_split)  # Debugging
+    #
+    #     # If the user enters nothing
+    #     if guess is None:
+    #         await client.send_message(message.channel, embed=embed_timeout)
+    #         return
+    #     # Correct answer given
+    #     if guess_split.issubset(answer):
+    #         await client.send_message(message.channel, embed=embed_correct)
+    #         points.set_points(user_id, points.get_points(user_id) + 10)
+    #         points.save()
+    #     # Wrong answer given
+    #     else:
+    #         await client.send_message(message.channel, embed=embed_wrong)
+    #         points.set_points(user_id, points.get_points(user_id) - 5)
+    #         points.save()
 
     if message.content.startswith("$power"):
         power = random.randint(1, 16)
@@ -312,7 +311,7 @@ async def on_message(message):
                                   "broadcast address of a given IP address and mask\n"
                                   "**$subnet-subnet:** Starts a game for anyone in the channel to guess the subnets "
                                   "of a given IP address and mask with answers delimited by a comma in the format "
-                                  "xxx.xxx.xxx.xxx/yy\n"
+                                  "xxx.xxx.xxx.xxx/yy (**WIP - NOT WORKING CURRENTLY**)\n"
                                   "**$power:** Starts a game for anyone in the channel to guess the answer of a "
                                   "random power with base 2 (i.e. 2^10)\n"
                                   "**$help:** DMs this help message to the user")
@@ -324,6 +323,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    await client.change_presence(game=discord.Game(name='Use $help'))
 
 
 client.run(TOKEN)
