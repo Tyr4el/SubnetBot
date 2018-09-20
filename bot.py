@@ -22,10 +22,12 @@ async def on_message(message):
 
     # Shutdown
     if message.content.startswith('$shutdown'):
-        await client.send_message(message.channel, ':wave: Bye :wave: bye!')
-        points.save()
-        await client.close()
-
+        if author.server_permissions.administrator:
+            await client.send_message(message.channel, ':wave: Bye :wave: bye!')
+            points.save()
+            await client.close()
+        else:
+            await client.send_message(message.channel, 'You do not have permissions to do that.')
     # Guessing game for guessing the network address of an IP
     # $subnet-network
     if message.content.startswith('$subnet-network'):
