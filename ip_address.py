@@ -4,7 +4,7 @@ import random
 
 class IPAddress:
     def __init__(self):
-        # Generate a random IP address in the range 1.0.0.1 (?) to 223.255.254.254
+        # Generate a random IP address in the range 10.0.0.1 to 223.255.254.254
         self.start = int(ipaddress.IPv4Address('10.0.0.1'))
         self.stop = int(ipaddress.IPv4Address('223.255.254.254'))
         self.random_ip = random.randrange(self.start, self.stop)
