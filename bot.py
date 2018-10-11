@@ -4,7 +4,6 @@ import ip_address
 import ipaddress
 import points
 import random
-from ipaddress import AddressValueError
 
 TOKEN = constants.TOKEN
 
@@ -71,7 +70,7 @@ async def on_message(message):
             except ipaddress.AddressValueError:
                 return False
 
-        guess = await client.wait_for_message(channel=message.channel, timeout=30.0, check=check)
+        guess = await client.wait_for_message(channel=message.channel, timeout=60.0, check=check)
 
         # If the user enters nothing
         if guess is None:
