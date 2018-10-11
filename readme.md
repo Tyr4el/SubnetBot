@@ -1,8 +1,8 @@
-#Welcome
+# **Welcome**
 
 A simple Discord bot written in Python to help users practice their subnetting skills with games for guessing the subnet network and broadcast addresses.  Also includes a powers game to guess the answer of a random power with the base 2.
 
-#Installation
+# **Installation**
 
 You can follow the guide below to add the bot to your server.
 
@@ -12,7 +12,7 @@ Client ID: 489199381103378452
 
 https://github.com/jagrosh/MusicBot/wiki/Adding-Your-Bot-To-Your-Server
 
-##Commands
+## **Commands**
 
 1. **$points:** Shows the user's current points
 2. **$leaderboard:** Displays the top 10 users and their points
