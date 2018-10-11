@@ -4,15 +4,22 @@ A simple Discord bot written in Python to help users practice their subnetting s
 
 # **Installation**
 
-You can follow the guide below to add the bot to your server.
+1. Log in to your Discord account at 
+https://discordapp.com/developers
+2. Create a new application and name it whatever you want (this bot is called SubnetBot) and save your changes
+3. Copy the Client ID and Client Secret and save them somewhere for the time being
+4. Clone the GitHub repo onto your computer (like in your Downloads folder) ```C:\Users\username\Downloads\```
+5. Enter your terminal/command prompt and ```cd``` to the *project* directory and enter the following ```pip install -r requirements.txt```
+6. Copy your Client Secret into the constants.py folder between the " "
+7. Follow the guide linked below for the final steps 
 
-The bot needs Administrator privileges
+From this point on, you can follow the guide below to add the bot to your server.
 
-Client ID: 489199381103378452 
+**Note**: The bot needs Administrator privileges when being added and can only be added to a server *you* own.
 
 https://github.com/jagrosh/MusicBot/wiki/Adding-Your-Bot-To-Your-Server
 
-## **Commands**
+# **Commands**
 
 1. **$points:** Shows the user's current points
 2. **$leaderboard:** Displays the top 10 users and their points
